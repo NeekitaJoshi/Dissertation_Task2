@@ -1,0 +1,48 @@
+clear
+clc
+
+%Create georeference object for the NCEP/NCAR grid
+R = georasterref;
+R.RasterSize = [150,360];
+R.Latlim = [-90, 90];
+R.Lonlim = [0,360];
+R.ColumnsStartFrom = 'north';
+R.RowsStartFrom = 'west';
+%%
+% GWSA = load('GWSA_2003_2010.mat'); %load the GLEAM data
+PET = load('PET.mat');
+% PET = PET.PET; 
+%%
+% GWSA = GWSA.GWSA; 
+% data = ones(59,1);
+stations = dir('*.csv'); 
+for p = 1:length(stations)
+    p
+    %Open daily surface weather station data
+    wsData = importdata(stations(p).name);
+    latlon = importdata('lat_long_station.xlsx');
+    wsData = wsData(685:708,:);
+%     lat = latlon(2,end); %extract station latitude
+%     lon = latlon(3,end); %extract station longitude 
+    lat = ones(24,1)*latlon(p,end-1);
+    lon = ones(24,1)*latlon(p,end);
+    
+        if (islogical(stations(p).name(1:7)==latlon(p,1)))
+        wsData(:,4) = lat;
+        wsData(:,5) = lon;
+        else
+            display('warning');
+        end
+        
+    %Find the grid cell (row, col) of my stations
+    [row,col] = latlon2pix(R,lat,lon); 
+    row = round(row); col = round(col); 
+    sub(1:2922,1) = PET(row,col,:); %pull out PET time series
+    
+    wsData(:,6) = sub; %append GLEAM PET to the end of the weather station data
+    
+    csvwrite([stations(p).name(1:7) '_ppta.csv'], wsData); 
+    
+    clear wsData sub row col lat lon 
+    clc
+end
