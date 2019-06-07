@@ -1,0 +1,47 @@
+clear 
+clc
+
+%Create a spatial reference object that tells Matlab where your data are in
+%space
+R = georasterref();
+R.RasterSize = [150 360];
+R.LatitudeLimits = [-60 90];
+R.LongitudeLimits = [-180 180];
+R.ColumnsStartFrom = 'north';
+R.RowsStartFrom = 'west';
+sum = NaN(150,360,193);
+count = 1;
+count1 =1;
+for i = 2002:2017
+    for j = 1:12;
+    filename1 = ['GR_TWSA_' num2str(i) '_' num2str(j.','%02d') '.tif.bil'];
+    filename2 = ['GLDAS_SWEA_' num2str(i) '_' num2str(j.','%02d') '.tif.bil'];
+    filename3 = ['GLDAS_SMA_' num2str(i) '_' num2str(j.','%02d') '.tif.bil'];
+    filename4 = ['GLDAS_CWSA_' num2str(i) '_' num2str(j.','%02d') '.tif.bil'];
+        if exist(filename1, 'file')
+        fid2 = fopen(filename2);
+        fid3 = fopen(filename3);
+        fid4 = fopen(filename4);
+        data2 = fread(fid2,[360 150],'float');
+        data3 = fread(fid3,[360 150],'float');
+        data4 = fread(fid4,[360 150],'float');
+        fclose(fid2);
+        fclose(fid3);
+        fclose(fid4);
+        else
+             continue;
+        end
+    sum = data2+data3+data4;
+    sum = sum*0.1;
+    
+%         Replace missing values (-1000) with NaN
+    for jj = 1:150
+        sum(sum(:,jj) <= -1e+38, jj) = NaN;
+    end 
+    sum = sum';
+    a= ['GWSA_' num2str(i) '_' num2str(j) '.tif'];
+    geotiffwrite(a,sum,R)
+    clear filename1 filename2 filename3 filename4 fid1 fid2 fid3 fid4
+    end
+    
+end
