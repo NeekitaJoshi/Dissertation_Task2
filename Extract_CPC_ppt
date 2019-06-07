@@ -1,0 +1,32 @@
+clear 
+clc
+
+%Create a spatial reference object that tells Matlab where your data are in
+%space
+R = georasterref();
+R.RasterSize = [180 360];
+R.LatitudeLimits = [-90 90];
+R.LongitudeLimits = [0 360];
+R.ColumnsStartFrom = 'north';
+R.RowsStartFrom = 'west';
+GWSA = NaN(180,360,2);
+count = 1;
+for i = 2002
+    for j = 4:5;
+    filename2 = ['PPT_' num2str(i) '_' num2str(j.','%02d') '.tif'];
+    fid2 = fopen(filename2);
+    data1 = geotiffread(filename2);
+    fclose(fid2);
+    %     sum(1:360,1:150)= GLDAS(:,:,count);
+%         Replace missing values (-1000) with NaN
+    for jj = 1:360
+        data1(data1(:,jj) <= -1e+38, jj) = NaN;
+    end
+        count = count + 1;
+%     data1 = data1'; %transpose the data to make it latitude x longitude
+    GWSA(:,:,count) = data1;
+    save('PPTA2.mat');
+    clear filename1 filename2 filename3 filename4 fid1 fid2 fid3 fid4
+    end
+    
+end
