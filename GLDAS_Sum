@@ -32,8 +32,7 @@ for i = 2002:2017
              continue;
         end
     sum = data2+data3+data4;
-    sum = sum*0.1;
-    
+        
 %         Replace missing values (-1000) with NaN
     for jj = 1:150
         sum(sum(:,jj) <= -1e+38, jj) = NaN;
