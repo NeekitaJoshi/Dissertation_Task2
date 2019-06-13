@@ -3,6 +3,7 @@ clc
 
 %Create a spatial reference object that tells Matlab where your data are in
 %space
+%Both TWSA and GLDAS sum should be in -180 180 longitude limits
 R = georasterref();
 R.RasterSize = [150 360];
 R.LatitudeLimits = [-60 90];
@@ -18,42 +19,39 @@ R.RowsStartFrom = 'west';
 count = 1;
 
 for i = 2002:2017
-    for j = 4;
-    filename1 = ['GLDASsum_2002_4.tif'];
-    filename2 = ['GR11float2_TWSA_2002_4.tif'];
-    fid1 = fopen(filename1);
-    fid2 = fopen(filename2);
+    for j = 1:12;
+    filename1 = ['GLDASsum_Re2_' num2str(i) '_' num2str(j) '.tif'];
+    filename2 = ['TWSA_1362019_' num2str(i) '_' num2str(j) '.tif'];;
 %     refmat = makerefmat( ... 
 %         'RasterSize', RasterSize, 'Latlim', [-60 90], ...
 %        'Lonlim', [0 360]);
 %     [data1,~,~] = geotiffread(filename1);
 %     [data2,refmat,~] = geotiffread(filename2);
 %     R1 = refmatToGeoRasterReference(refmat, RasterSize);
-    data1 = geotiffread(filename1);
-    data2 = geotiffread(filename2);
-    fclose(fid1);
-    fclose(fid2);
-%         if exist(filename1, 'file')
-%             fid1 = fopen(filename1);
-%             data1 = fread(fid1,[360 150],'float');
-%             fclose(fid1);
-%         else
-%              continue;
-%         end
+        if exist(filename1, 'file')
+        fid1 = fopen(filename1);
+        fid2 = fopen(filename2);
+        data1 = geotiffread(filename1);
+        data2 = geotiffread(filename2);
+        fclose(fid1);
+        fclose(fid2);
+        else
+             continue;
+        end
 %     count = count + 1;
     for jj = 1:360
         data1(data1(:,jj) <= -1e+38, jj) = NaN;
-        data2(data2(:,jj) <= -3e+38, jj) = NaN;
+        data2(data2(:,jj) <= -1e+38, jj) = NaN;
     end
 %     data2 = data2';
 %     t1 = data2 - data1;
-    a= ['TWSA1112345_' num2str(i) '_' num2str(j) '.tif'];
-    b= ['GLDAS111245_' num2str(i) '_' num2str(j) '.tif'];
-    c= ['GWQQ223_' num2str(i) '_' num2str(j) '.tif'];
+    a= ['TWSA1362019_' num2str(i) '_' num2str(j) '.tif'];
+    b= ['GLDAS1362019_' num2str(i) '_' num2str(j) '.tif'];
+    c= ['GWSA1362019_' num2str(i) '_' num2str(j) '.tif'];
 %     georasterref( ...
 %        'RasterSize', RasterSize, 'Latlim', [-60 90], 'Lonlim', [-180 180]);
-    geoshow(data1,R);
-    geoshow(data2,R);
+%     geoshow(data1,R);
+%     geoshow(data2,R);
 %     geoshow(data1,R);
 %     geoshow(t1,R);
     geotiffwrite(b,data1,R);
