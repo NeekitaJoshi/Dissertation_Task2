@@ -9,40 +9,59 @@ R.Lonlim = [0,360];
 R.ColumnsStartFrom = 'north';
 R.RowsStartFrom = 'west';
 %%
-% GWSA = load('GWSA_2003_2010.mat'); %load the GLEAM data
-PET = load('PET.mat');
-% PET = PET.PET; 
+% GWSA = load('GWSA_2003_200.mat'); %load the GLEAM data
+outputDirectory = 'output'
+PPTA = load('PPTA.mat');
+PPTA = PPTA.PPTA;
+wsDatar = NaN(192,7)
+% count = 1;
 %%
 % GWSA = GWSA.GWSA; 
 % data = ones(59,1);
 stations = dir('*.csv'); 
 for p = 1:length(stations)
     p
+    count = 1;
     %Open daily surface weather station data
     wsData = importdata(stations(p).name);
-    latlon = importdata('lat_long_station.xlsx');
-    wsData = wsData(685:708,:);
-%     lat = latlon(2,end); %extract station latitude
+    latlon = xlsread('lat_long_station.xlsx');
+    for i = 2002:2017
+        c = repmat(' ',[]);
+       [val idx] = find(wsData == i);
+        if (val ~= c)
+             wsDatar(count:count+11,1)= wsData(val,1);
+             wsDatar(count:count+11,2) = wsData(val,2);
+             wsDatar(count:count+11,3) = wsData(val,3);
+             
+         else
+             wsDatar(count:count+11,1)= i;
+             wsDatar(count:count+11,2) = 1:12;
+             wsDatar(count:count+11,3) = NaN;
+         end
+             count = count+12;
+    end   
+    %     lat = latlon(2,end); %extract station latitude
 %     lon = latlon(3,end); %extract station longitude 
-    lat = ones(24,1)*latlon(p,end-1);
-    lon = ones(24,1)*latlon(p,end);
-    
+    lat = ones(192,1)*latlon(p,end-1);
+    lon = ones(192,1)*latlon(p,end);
         if (islogical(stations(p).name(1:7)==latlon(p,1)))
-        wsData(:,4) = lat;
-        wsData(:,5) = lon;
+        wsDatar(:,4) = lat;
+        wsDatar(:,5) = lon;
         else
             display('warning');
         end
-        
+    extlat = wsDatar(1,end-3); %extract station latitude
+    extlon = wsDatar(1,end-2); 
     %Find the grid cell (row, col) of my stations
-    [row,col] = latlon2pix(R,lat,lon); 
-    row = round(row); col = round(col); 
-    sub(1:2922,1) = PET(row,col,:); %pull out PET time series
-    
-    wsData(:,6) = sub; %append GLEAM PET to the end of the weather station data
-    
-    csvwrite([stations(p).name(1:7) '_ppta.csv'], wsData); 
-    
+        if (extlon ~= NaN)
+            [row,col] = latlon2pix(R,extlat,extlon); 
+            row = round(row); col = round(col); 
+            sub(1:192,1) = PPTA(row,col,:); %pull out PET time series
+            wsDatar(:,6) = sub; %append GLEAM PET to the end of the weather station data
+            csvwrite([outputDirectory '/' stations(p).name(1:7) '_ppta.csv'], wsDatar); 
+        else
+            continue;
+        
+        end
     clear wsData sub row col lat lon 
-    clc
 end
