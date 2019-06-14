@@ -7,7 +7,7 @@ clc
 R = georasterref();
 R.RasterSize = [150 360];
 R.LatitudeLimits = [-60 90];
-R.LongitudeLimits = [0 360];
+R.LongitudeLimits = [-180 180];
 RasterSize = [150 360];
 R.ColumnsStartFrom = 'north';
 R.RowsStartFrom = 'west';
@@ -45,9 +45,9 @@ for i = 2002:2017
     end
 %     data2 = data2';
 %     t1 = data2 - data1;
-    a= ['TWSA1362019_' num2str(i) '_' num2str(j) '.tif'];
-    b= ['GLDAS1362019_' num2str(i) '_' num2str(j) '.tif'];
-    c= ['GWSA1362019_' num2str(i) '_' num2str(j) '.tif'];
+    a= ['TWSA1462019_' num2str(i) '_' num2str(j) '.tif'];
+    b= ['GLDAS1462019_' num2str(i) '_' num2str(j) '.tif'];
+    c= ['GWSA1462019_' num2str(i) '_' num2str(j) '.tif'];
 %     georasterref( ...
 %        'RasterSize', RasterSize, 'Latlim', [-60 90], 'Lonlim', [-180 180]);
 %     geoshow(data1,R);
