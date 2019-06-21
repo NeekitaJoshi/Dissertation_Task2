@@ -1,0 +1,63 @@
+clear all;
+close all;
+clc;
+
+outputDirectory = 'files_arranged';
+
+a=csvread('total_data.csv');
+b=csvread('station_numbers.csv');
+x=[];
+for i=1:length(b)
+    c=a(find(a(:,1)==b(i,1)),:);
+    x=[];
+    
+    for j=2002:2017
+        d=c(find(c(:,2)==j),:);
+        for k=1:12
+            e=d(find(d(:,3)==k),:);
+            if k==1 || k==3 || k==5 || k==7 || k==8 || k==10 || k==12
+                for m=1:31
+                    f=e(find(e(:,4)==m),:);
+                    if length(f)==0
+                        x=[x;b(i,1) j k m NaN];
+                    else 
+                        x=[x;f(1,1:4) mean(f(:,5))];
+                    end
+                end
+            elseif k==4 || k==6 || k==9 || k==11
+                for m=1:30
+                    f=e(find(e(:,4)==m),:);
+                    if length(f)==0
+                        x=[x;b(i,1) j k m NaN];
+                    else
+                        x=[x;f(1,1:4) mean(f(:,5))];
+                    end
+                end
+            else
+                if mod(j,4)==0
+                    for m=1:29
+                        f=e(find(e(:,4)==m),:);
+                        if length(f)==0
+                            x=[x;b(i,1) j k m NaN];
+                        else
+                            x=[x;f(1,1:4) mean(f(:,5))];
+                        end
+                    end
+                else
+                    for m=1:28
+                        f=e(find(e(:,4)==m),:);
+                        if length(f)==0
+                            x=[x;b(i,1) j k m NaN];
+                        else
+                            x=[x;f(1,1:4) mean(f(:,5))];
+                        end
+                    end    
+                end
+            end
+        end
+    end
+   w=num2str(b(i,1));
+   x(x==0)=NaN;
+   dlmwrite([outputDirectory '/' w '.csv'],x,'delimiter', ',', 'precision', '%i'); 
+end
+    
