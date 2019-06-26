@@ -1,0 +1,26 @@
+clear
+clc
+
+b = [];
+
+x = 1;
+data1 = dir('C:/Users/siu854422126/OneDrive - Southern Illinois University/5Summer 2019/Dissertation/Task2/test/*.csv');
+% data = dlmread('8418150_ppta_gwsatest (Autosaved).csv');
+for p = 1:length(data1)    
+    counter = 1;
+    cd('C:/Users/siu854422126/OneDrive - Southern Illinois University/5Summer 2019/Dissertation/Task2/test/');
+    data = importdata(data1(p).name);
+    t = find(data(:,2) == 6);
+    for i = 2002:2017
+        k = i;
+        b(p+1,1) = data(1,5);
+        b(p+1,2) = data(1,6); 
+         for j = 1:length(t)
+           b(p,2+counter)= k;
+           y = t(j,1);
+           b(p+1,2+j) = data(y,3);
+         end
+         counter = counter+1; 
+    end 
+    clear p counter
+end
