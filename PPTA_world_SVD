@@ -1,0 +1,42 @@
+clear
+clc
+%Create georeference object for the NCEP/NCAR grid
+R = georasterref;
+R.RasterSize = [150,360];
+R.Latlim = [-90, 90];
+R.Lonlim = [0,360];
+R.ColumnsStartFrom = 'north';
+R.RowsStartFrom = 'west';
+PPTA = load('PPTA.mat');
+PPTA = PPTA.PPTA;
+% GWSA = load('GWSA.mat');
+% GWSA = GWSA.GWSA;
+wsDatar = [];
+data = dlmread('8449130_ppta_gwsa.csv');
+t = find(data(:,2) == 6);
+for p = 1:15182
+    p
+    counter = 1;
+    latlon = xlsread('worldlatlon1.csv');
+    lat = ones(15182,1)*latlon(p,end-1);
+    lon = ones(15182,1)*latlon(p,end);
+    %Find the grid cell (row, col) of my stations
+    for i = 2002:2017
+        k = i;    
+    wsDatar(1,2+counter)= k;    
+    wsDatar(p+1,1) = lat(1,1);
+    wsDatar(p+1,2) = lon(1,1);
+         for j = 1:length(t)
+           
+           y = t(j,1);
+           lat1 = lat(p,1);
+           lon1 = lon(p,1);
+           [row,col] = latlon2pix(R,lat1,lon1); 
+            row = round(row); col = round(col); 
+            wsDatar(p+1,2+j) = PPTA(row,col,y);
+          end
+         counter = counter+1;
+     end
+    clear p counter
+    %             clear wsData sub row col lat lon sub1
+end
