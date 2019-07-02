@@ -1,0 +1,27 @@
+clear
+clc
+
+wsDatar = [];
+stations = dir('C:\Users\siu854422126\OneDrive - Southern Illinois University\5Summer 2019\Dissertation\Task2\Test_SVD\SLA\*csv');
+          %select months
+for p = 1:length(stations)
+    p
+    cd('C:/Users/siu854422126/OneDrive - Southern Illinois University/5Summer 2019/Dissertation/Task2/Test_SVD/SLA/')
+    SLA = importdata(stations(p).name);
+    t = find(SLA(:,2) == 6); 
+    counter = 1;  
+    lat = SLA(1,5);
+    lon = SLA(1,6);
+    %Find the grid cell (row, col) of my stations
+    for i = 2002:2017
+        k = i;    
+        wsDatar(1,2+counter)= k;
+        wsDatar(p+1,1) = lat(1,1);
+        wsDatar(p+1,2) = lon(1,1);               
+       x = (find(SLA(:,2) == 6 & SLA(:,1) == i));                                  
+       wsDatar(p+1,2+counter) = SLA(x,4);
+       counter = counter +1;
+    end
+    clear p counter 
+    %             clear wsData sub row col lat lon sub1
+end
