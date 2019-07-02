@@ -1,0 +1,42 @@
+This code helps to extract maximum value of each row and column against time
+clear
+clc
+%Create georeference object for the grid
+R = georasterref;
+R.RasterSize = [501,515];
+R.Latlim = [-180, 180];
+R.Lonlim = [303228.86829,303743.86829];
+R.ColumnsStartFrom = 'north';
+R.RowsStartFrom = 'west';
+DMT = NaN(501,515,25);
+w = NaN(501,515);
+v = NaN(501,515);
+count = 1;
+for j = 0:24;
+    filename2 = ['proj_temp_a11_' num2str(j.','%02d') '.tif'];
+        if exist(filename2, 'file')
+             fid2 = fopen(filename2);
+             data1 = geotiffread(filename2);
+             fclose(fid2);
+        else
+             data1 = NaN(501,515);
+        end
+  for jj = 1:515
+        data1(data1(:,jj) <= -1e+38, jj) = NaN;
+  end  
+%     data1 = data1'; %transpose the data to make it latitude x longitude
+    DMT(:,:,count) = data1;
+    count = count + 1;
+    save('DMT.mat');
+%  for ii = 515    
+%     for k=1:size(DMT,3)
+%         DMT(:,i,k) = data;
+        data_3d = load('DMT.mat');
+        data_3d = data_3d.DMT;
+        max_data_3d = max(data_3d, [], 3)
+%     end
+    a= ['DMT_max.tif'];
+    geotiffwrite(a,max_data_3d,R) 
+%  end
+    clear filename1 filename2 filename3 filename4 fid1 fid2 fid3 fid4
+end
