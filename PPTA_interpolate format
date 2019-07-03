@@ -1,0 +1,57 @@
+clear
+clc
+%Create georeference object for the grid
+R = georasterref;
+R.RasterSize = [180,360];
+R.Latlim = [-90, 90];
+R.Lonlim = [0,360];
+R.ColumnsStartFrom = 'north';
+R.RowsStartFrom = 'west';
+PPTA = load('PPTA_july3.mat');
+PPTA = PPTA.PPTA;
+% GWSA = load('GWSA.mat');
+% GWSA = GWSA.GWSA;
+wsDatar = [];
+% data = dlmread('8449130_ppta_gwsa.csv');
+% t = find(data(:,2) == 6);           %select months
+for p = 1:3497
+    p
+    counter = 1;
+    latlon = xlsread('USAlatlon_360.csv');
+                
+               
+
+    %Find the grid cell (row, col) of my stations  
+    for i = 2002:2017
+         for j =12            
+       for j = 1:length(latlon)
+             lat = latlon(j,end-1);
+              lon = latlon(j,end);
+              lon2 =lon+360;
+    k = i;
+%          w = 1:12;
+          wsDatar(2+counter,1)= k;
+          wsDatar(2+counter,2)= j;
+              wsDatar(1,j+2) = lat(1,1);
+                wsDatar(2,j+2) = lon(1,1); 
+    t = 1:192;    
+%           lat1 = lat(j,1);
+%          lon1 = lon(j,1);
+          for jj = 1:length(t)
+                y = t(1,jj);
+                [row,col] = latlon2pix(R,lat,lon2); 
+                row = round(row); col = (round(col));
+                wsDatar(jj+2,2+j) = PPTA(row,col,jj);
+            
+         end
+ 
+
+             counter = counter+1;
+        end
+         end
+% counter = counter+1;
+     end
+    clear p counter
+    %             clear wsData sub row col lat lon sub1
+end
+% csvwrite('PPTA_forSVD.csv',wsDatar);
