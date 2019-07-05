@@ -1,0 +1,35 @@
+library(openxlsx)
+library(imputeTS)
+#
+input_dic <- 'D:/NHPA/GWS_calculation/Combine_GRACE/'
+
+#copy all the files you want to read in R in your working directory
+a <- dir(input_dic)
+#using lapply to remove the".csv" from the filename
+for(i in a){
+  list1 <- lapply(a, function(x) gsub(".csv","",x))
+}
+#Final step
+for(i in list1){
+  filepath <- file.path(input_dic,paste(i,".csv",sep=""))
+  assign("data2", read.csv(filepath))
+  myts <- ts(data2$Average, start=c(2009, 1), frequency=12)
+  imp1 <- na.seadec(myts)
+  x <- data.frame("Date"=data2$Date,"Average"=imp1)
+  write.csv(x,filepath, row.names=FALSE)
+}
+
+#copy all the files you want to read in R in your working directory
+a <- dir(input_dic)
+#using lapply to remove the".csv" from the filename 
+for(i in a){
+  list1 <- lapply(a, function(x) gsub(".csv","",x))
+}
+#Final step 
+for(i in list1){
+  filepath <- file.path(input_dic,paste(i,".csv",sep=""))
+  assign("data2", read.csv(filepath))
+  myts <- data2$Average-mean(data2$Average)
+  x <- data.frame("Date"=data2$Date,"Average"=myts)
+  write.csv(x,filepath, row.names=FALSE)
+}
