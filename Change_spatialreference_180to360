@@ -1,0 +1,35 @@
+clear 
+clc
+
+%Create a spatial reference object that tells Matlab where your data are in
+%space
+R = georasterref();
+R.RasterSize = [150 360];
+R.LatitudeLimits = [-60 90];
+R.LongitudeLimits = [0 360];
+RasterSize = [150 360];
+R.ColumnsStartFrom = 'north';
+R.RowsStartFrom = 'west';
+count = 1;
+
+for i = 2002
+    for j = 4;
+    filename1 = ['GLDASsum_' num2str(i) '_' num2str(j) '.tif'];
+    fid1 = fopen(filename1);
+    refmat = makerefmat( ... 
+        'RasterSize', RasterSize, 'Latlim', [-60 90], ...
+       'Lonlim', [0 360]);
+    [test,refmat,~] = geotiffread(filename1);
+    R1 = refmatToGeoRasterReference(refmat, RasterSize);
+    data1 = geotiffread(filename1);
+    fclose(fid1);
+    for jj = 1:150
+        data1(data1(:,jj) <= -1e+38, jj) = NaN;
+    end
+    a= ['TWSA22_' num2str(i) '_' num2str(j) '.tif'];
+    geoshow(test,R1);
+    geotiffwrite(a,test,R);
+    clear filename1 filename2 filename3 filename4 fid1 fid2 fid3 fid4
+    end
+    
+end
