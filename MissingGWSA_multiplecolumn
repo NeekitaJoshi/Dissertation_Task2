@@ -1,0 +1,14 @@
+setwd('E:/onedrive/OneDrive - Southern Illinois University/5Summer 2019/Dissertation/Task2/Test_SVD/Interpolated/')
+library(openxlsx)
+library(imputeTS)
+
+data <- read.csv("GWSA_forInterpolation_20171.csv", header = FALSE)
+
+data1 <- data[-c(1:2),]
+for(i in (3:ncol(data1))){
+  if(sum(is.na(data1[,i]))<((nrow(data1)/3))){
+  myts <- ts(data1[,i], start=c(2002, 1), frequency=12)
+  imp <- na.seadec(myts)
+  data1[,i] <- imp}
+}
+write.table( data1,"interpolated_file_without_1st_two_row_of_main_file.csv", sep=",",  col.names=FALSE, row.names = FALSE)
