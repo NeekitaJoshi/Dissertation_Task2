@@ -17,10 +17,10 @@ for i = 2002
     filename1 = ['GLDASsum_' num2str(i) '_' num2str(j) '.tif'];
     fid1 = fopen(filename1);
     refmat = makerefmat( ... 
-        'RasterSize', RasterSize, 'Latlim', [-60 90], ...
+        'RasterSize', size(filename1), 'Latlim', [-60 90], ...
        'Lonlim', [0 360]);
     [test,refmat,~] = geotiffread(filename1);
-    R1 = refmatToGeoRasterReference(refmat, RasterSize);
+    R1 = refmatToGeoRasterReference(refmat, size(filename1);
     data1 = geotiffread(filename1);
     fclose(fid1);
     for jj = 1:150
