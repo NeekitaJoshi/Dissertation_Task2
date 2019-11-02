@@ -1,0 +1,78 @@
+clear all;
+close all;
+clc;
+R = georasterref();
+R.RasterSize = [180 360];
+R.LatitudeLimits = [-90 90];
+R.LongitudeLimits = [0 360];
+R.ColumnsStartFrom = 'north';
+R.RowsStartFrom = 'west';
+file = load('PPTA_july4.mat');
+PPTA = file.PPTA;
+lat = [];
+lon = [];
+latitude = [];
+longitude = [];
+lagcount = [];
+usa = shaperead('states_conus.shx');
+for j = 2:length(usa)-1
+    longitude = [longitude; (usa(j).X)'];
+    latitude = [latitude; (usa(j).Y)'];
+end
+for jj = 43:49
+    longitude = [longitude; (usa(j).X)'];
+    latitude = [latitude; (usa(j).Y)'];
+end
+for ii = 1:180
+    for k = 1:360
+        [lat lon] = pix2latlon(R,ii,k);
+        lat1(ii,1) = lat;
+        lon1(k,1) = lon;
+    end
+
+end
+lat1 = lat1(40:81);
+lon1 = lon1(251:301);
+count = 1;
+for i = 1:191
+    [row col] = latlon2pix(R,(lat1(1,1)),lon1(1,1));
+   [row1 col1] = latlon2pix(R,lat1(end,1),lon1(end,1));
+        sub(:,:) = PPTA(row:row1,col:col1,i); 
+        PPTA1(:,:,count) = sub; %flip the data so dimensions are lat x lon x time
+
+        count = count + 1; 
+        clear sub
+    end
+
+   
+% varargin = count-1;
+
+ref1 = csvread('GWSA_Huc02_2017.csv'); %change file for TWSA
+
+
+%%
+[r0,rmax,lags] = xcorr3(PPTA1,ref1,'maxlags',6,'detrend');
+
+subplot (2,2,1)
+
+set(pcolor(lon1, lat1, lags),'EdgeColor', 'none');
+axis xy image
+
+cb = colorbar;
+
+ylabel(cb,'lags (months)')
+caxis([-6 6])
+hold on
+subplot (2,2,2)
+set(pcolor(lon1,lat1,rmax),'EdgeColor', 'none');
+axis xy image
+
+cb = colorbar;
+ylabel(cb,'maximum correlation')
+caxis([0.1 0.8])
+refmat = makerefmat( ...
+    'RasterSize', size(lags), 'Latlim', [row row1], 'Lonlim', [col col1]);
+
+%     RasterSize = [42 51]
+    R1 = refmatToGeoRasterReference(refmat, size(lags));
+geotiffwrite('lagTWSA_PPT',lags,R1);
